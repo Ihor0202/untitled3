@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { IUser } from "./interface/IUser";
+import { IUser } from "../interfaces/IUser";
 
 const read = async (): Promise<IUser[]> => {
   const pathToFile = path.join(process.cwd(), "db.json");
