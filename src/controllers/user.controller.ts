@@ -13,19 +13,9 @@ class UserController {
     }
   }
 
-  public async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const dto = req.body as IUser;
-      const result = await userService.create(dto);
-      res.status(201).json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = Number(req.params.userId);
+      const userId = req.params.userId;
       const result = await userService.getById(userId);
       res.json(result);
     } catch (e) {
@@ -35,7 +25,7 @@ class UserController {
   public async getByIdPut(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = req.body as IUser;
-      const userId = Number(req.params.userId);
+      const userId = req.params.userId;
       const result = await userService.getByIdPut(userId, dto);
       res.json(result);
     } catch (e) {
@@ -44,7 +34,7 @@ class UserController {
   }
   public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = Number(req.params.userId);
+      const userId = req.params.userId;
       await userService.deleteById(userId);
       res.sendStatus(204);
     } catch (e) {
