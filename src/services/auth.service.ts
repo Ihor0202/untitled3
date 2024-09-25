@@ -21,6 +21,7 @@ class AuthService {
     await tokenRepository.create({ ...tokens, _userId: user._id });
     return { user, tokens };
   }
+
   // public async signIn(dto: any): Promise<any> {}
   public async signIn(dto: any): Promise<{ user: IUser; tokens: ITokenPair }> {
     const user = await userRepository.getByEmail(dto.email);
