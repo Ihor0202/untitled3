@@ -1,6 +1,6 @@
 import { ApiErrors } from "../errors/api.errors";
 import { ITokenPair } from "../interfaces/IToken";
-import { IUser } from "../interfaces/IUser";
+import { ISignIn, IUser } from "../interfaces/IUser";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { passwordService } from "./password.service";
@@ -23,7 +23,9 @@ class AuthService {
   }
 
   // public async signIn(dto: any): Promise<any> {}
-  public async signIn(dto: any): Promise<{ user: IUser; tokens: ITokenPair }> {
+  public async signIn(
+    dto: ISignIn,
+  ): Promise<{ user: IUser; tokens: ITokenPair }> {
     const user = await userRepository.getByEmail(dto.email);
     if (!user) {
       throw new ApiErrors("User not found", 404);
