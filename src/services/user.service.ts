@@ -1,4 +1,5 @@
 import { ApiErrors } from "../errors/api.errors";
+import { ITokenPayload } from "../interfaces/IToken";
 import { IUser } from "../interfaces/IUser";
 import { userRepository } from "../repositories/user.repository";
 
@@ -14,11 +15,18 @@ class UserService {
     }
     return user;
   }
-  public async getByIdPut(userId: string, dto: IUser): Promise<void> {
-    await userRepository.getByIdPut(userId, dto);
+  public async getMe(jwtPayload: ITokenPayload): Promise<IUser> {
+    const user = await userRepository.getById(jwtPayload.userId);
+    if (!user) {
+      throw new ApiErrors("not user", 404);
+    }
+    return user;
   }
-  public async deleteById(userId: string): Promise<void> {
-    await userRepository.deleteById(userId);
+  public async updateMe(jwtPayload: ITokenPayload, dto: IUser): Promise<void> {
+    await userRepository.getByIdPut(jwtPayload.userId, dto);
+  }
+  public async deleteMe(jwtPayload: ITokenPayload): Promise<void> {
+    await userRepository.deleteById(jwtPayload.userId);
   }
 }
 
