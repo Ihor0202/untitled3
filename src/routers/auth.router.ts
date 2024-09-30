@@ -3,7 +3,7 @@ import { Router } from "express";
 import { authController } from "../controllers/auth.controller";
 import { authMiddleware } from "../middleweres/auth.middleware";
 import { commonMiddleware } from "../middleweres/common.middleware";
-import { UserValidator } from "../valodators/user.validator";
+import { UserValidator } from "../valadators/user.validator";
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.post(
 
 router.post(
   "/sign-in",
-  // commonMiddleware.isBodyValid(UserValidator.create),
+  commonMiddleware.isBodyValid(UserValidator.signIn),
   authController.signIn,
 );
 
@@ -24,4 +24,12 @@ router.post(
   authMiddleware.checkRefreshToken,
   authController.refresh,
 );
+
+router.post("/logout",
+    authMiddleware.checkAccessToken,
+    authController.logout)
+
+router.post("/logout/all",
+    authMiddleware.checkAccessToken,
+    authController.logoutAll)
 export const authRouter = router;
