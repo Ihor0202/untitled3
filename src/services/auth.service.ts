@@ -26,7 +26,7 @@ class AuthService {
 
     const token = tokenService.generateActionTokens(
         {userId: user._id, role: user.role},
-        ActionTokenTypeEnum.FORGOT_PASSWORD,
+        ActionTokenTypeEnum.VERIFY_EMAIL,
     );
     await actionTokenRepository.create({
       type: ActionTokenTypeEnum.FORGOT_PASSWORD,
@@ -149,9 +149,10 @@ class AuthService {
     await tokenRepository.deleteManyByParams({_userId: jwtPayload.userId})
   }
   public async verify(jwtPayload: ITokenPayload): Promise<void> {
+    await userRepository.getByIdPut(jwtPayload.userId, { isVerified: true})
     await actionTokenRepository.deleteManyByParams({
       _userId: jwtPayload.userId,
-      type: ActionTokenTypeEnum.FORGOT_PASSWORD,
+      type: ActionTokenTypeEnum.VERIFY_EMAIL,
     });
   }
 }
