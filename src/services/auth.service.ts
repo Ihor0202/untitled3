@@ -1,12 +1,14 @@
 import {ApiErrors} from "../errors/api.errors";
 import {ITokenPair, ITokenPayload} from "../interfaces/IToken";
-import {ISignIn, IUser} from "../interfaces/IUser";
+import {IResetPasswordSend, IResetPasswordSet, ISignIn, IUser} from "../interfaces/IUser";
 import {tokenRepository} from "../repositories/token.repository";
 import {userRepository} from "../repositories/user.repository";
 import {passwordService} from "./password.service";
 import {tokenService} from "./token.service";
 import {emailService} from "./email.service";
 import {EmailTypeEnum} from "../enums/email-type.enum";
+import {ActionTokenTypeEnum} from "../enums/action-token-type.enum";
+import {actionTokenRepository} from "../repositories/action-token.repository";
 
 class AuthService {
   public async signUp(
@@ -22,11 +24,25 @@ class AuthService {
     });
     await tokenRepository.create({ ...tokens, _userId: user._id });
 
-    // await emailService.sendEmail("oros.ihor@student.uzhnu.edu.ua")
+    const token = tokenService.generateActionTokens(
+        {userId: user._id, role: user.role},
+        ActionTokenTypeEnum.FORGOT_PASSWORD,
+    );
+    await actionTokenRepository.create({
+      type: ActionTokenTypeEnum.FORGOT_PASSWORD,
+      _userId: user._id,
+      token,
+    })
+
     await emailService.sendEmail(
         EmailTypeEnum.WELCOME,
-        "moddi0202@gmail.com",
-        {name: user.name},
+        // "moddi0202@gmail.com",
+        dto.email,
+        {
+          name: user.name,
+          actionToken: token
+        },
+
     )
     return { user, tokens };
   }
@@ -90,13 +106,53 @@ class AuthService {
   }
 
   public async logoutAll(jwtPayload: ITokenPayload): Promise<void> {
-    // const user = await userRepository.getById(jwtPayload.userId);
+    const user = await userRepository.getById(jwtPayload.userId);
     await tokenRepository.deleteManyByParams({_userId: jwtPayload.userId});
-    // await emailService.sendEmail(EmailTypeEnum.LOGOUT, user.email, {
-    //   name: user.name
-    // })
+    await emailService.sendEmail(EmailTypeEnum.LOGOUT, user.email, {
+      name: user.name
+    })
+  }
 
+  public async forgotPasswordSendEmail(dto: IResetPasswordSend): Promise<void> {
+    const user = await userRepository.getByEmail(dto.email);
+    if (!user) {
+      throw new ApiErrors("user not found", 404);
+    }
 
+    const token = tokenService.generateActionTokens(
+        {userId: user._id, role: user.role},
+        ActionTokenTypeEnum.FORGOT_PASSWORD,
+    );
+    await actionTokenRepository.create({
+      type: ActionTokenTypeEnum.FORGOT_PASSWORD,
+      _userId: user._id,
+      token,
+    })
+    await emailService.sendEmail(
+        EmailTypeEnum.FORGOT_PASSWORD,
+        user.email,
+        // "moddi0202@gmail.com",
+        {
+      name: user.name,
+      email: user.email,
+      actionToken: token,
+    })
+  }
+  public async forgotPasswordSet(dto: IResetPasswordSet, jwtPayload: ITokenPayload): Promise<void> {
+    const password = await passwordService.hashPassword(dto.password);
+    await userRepository.getByIdPut(jwtPayload.userId, {password})
+
+    await actionTokenRepository.deleteManyByParams({
+      _userId: jwtPayload.userId,
+      type: ActionTokenTypeEnum.FORGOT_PASSWORD,
+    });
+    await tokenRepository.deleteManyByParams({_userId: jwtPayload.userId})
+  }
+  public async verify(jwtPayload: ITokenPayload): Promise<void> {
+    await actionTokenRepository.deleteManyByParams({
+      _userId: jwtPayload.userId,
+      type: ActionTokenTypeEnum.FORGOT_PASSWORD,
+    });
   }
 }
 
