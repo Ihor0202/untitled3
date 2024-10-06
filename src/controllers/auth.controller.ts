@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ITokenPayload } from "../interfaces/IToken";
-import {IResetPasswordSend, IResetPasswordSet, ISignIn, IUser} from "../interfaces/IUser";
+import {IChangePassword, IResetPasswordSend, IResetPasswordSet, ISignIn, IUser} from "../interfaces/IUser";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -88,6 +88,20 @@ class AuthController {
       res.sendStatus(204)
     } catch (e) {
       next(e)
+    }
+  }
+
+  public async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      console.log("jwtPayload:", jwtPayload); // Додай це для діагностики
+
+      const dto = req.body as IChangePassword;
+
+      await authService.changePassword(jwtPayload, dto);
+      res.sendStatus(204);
+    } catch (e) {
+      next(e);
     }
   }
 }

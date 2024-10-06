@@ -1,6 +1,6 @@
 import {ApiErrors} from "../errors/api.errors";
 import {ITokenPair, ITokenPayload} from "../interfaces/IToken";
-import {IResetPasswordSend, IResetPasswordSet, ISignIn, IUser} from "../interfaces/IUser";
+import {IChangePassword, IResetPasswordSend, IResetPasswordSet, ISignIn, IUser} from "../interfaces/IUser";
 import {tokenRepository} from "../repositories/token.repository";
 import {userRepository} from "../repositories/user.repository";
 import {passwordService} from "./password.service";
@@ -154,6 +154,23 @@ class AuthService {
       _userId: jwtPayload.userId,
       type: ActionTokenTypeEnum.VERIFY_EMAIL,
     });
+  }
+
+  public async changePassword(
+      jwtPayload: ITokenPayload,
+      dto: IChangePassword,
+  ): Promise<void> {
+    const user = await userRepository.getById(jwtPayload.userId);
+    const isPasswordCorrect = await passwordService.comparePassword(
+        dto.oldPassword,
+        user.password,
+    );
+    if (!isPasswordCorrect) {
+      throw new ApiErrors("Invalid previous password", 401);
+    }
+    const password = await passwordService.hashPassword(dto.password);
+    await userRepository.getByIdPut(jwtPayload.userId, { password });
+    await tokenRepository.deleteManyByParams({ _userId: jwtPayload.userId });
   }
 }
 

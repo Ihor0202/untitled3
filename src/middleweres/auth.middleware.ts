@@ -64,6 +64,26 @@ class AuthMiddleware {
     }
   }
 
+  // public checkActionToken(type: ActionTokenTypeEnum) {
+  //   return async (req: Request, res: Response, next: NextFunction) => {
+  //     try {
+  //       const token = req.body.token as string;
+  //       if (!token) {
+  //         throw new ApiErrors("Token is not provided", 401);
+  //       }
+  //       const payload = tokenService.verifyToken(token, type);
+  //
+  //       const tokenEntity = await actionTokenRepository.getByToken(token);
+  //       if (!tokenEntity) {
+  //         throw new ApiErrors("Token is not valid", 401);
+  //       }
+  //       req.res.locals.jwtPayload = payload;
+  //       next();
+  //     } catch (e) {
+  //       next(e);
+  //     }
+  //   };
+  // }
   public checkActionToken(type: ActionTokenTypeEnum) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
