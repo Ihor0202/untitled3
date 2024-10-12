@@ -1,4 +1,4 @@
-import {ActionTokenTypeEnum} from "../enums/action-token-type.enum";
+import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 
 export interface IActionToken {
   _id?: string;
@@ -6,4 +6,3 @@ export interface IActionToken {
   type: ActionTokenTypeEnum;
   _userId: string;
 }
-

@@ -1,18 +1,19 @@
-import {timeHelper} from "../halpers/time.helper";
-import {CronJob} from "cron";
-import {oldPasswordRepository} from "../repositories/old-password.repository";
+import { CronJob } from "cron";
+
+import { timeHelper } from "../halpers/time.helper";
+import { oldPasswordRepository } from "../repositories/old-password.repository";
 
 const handler = async () => {
-    try {
-        const date = timeHelper.subtractByParams(90, "day")
+  try {
+    const date = timeHelper.subtractByParams(90, "day");
 
-       const deletedCount = await oldPasswordRepository.deleteManyByParams({
-           createdAt: { $lt: date },
-       })
-        console.log(`Deleted ${deletedCount} old passwords`);
-    } catch (error) {
-        console.error(error);
-    }
+    const deletedCount = await oldPasswordRepository.deleteManyByParams({
+      createdAt: { $lt: date },
+    });
+    console.log(`Deleted ${deletedCount} old passwords`);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const removeOldPasswordsCronJob = new CronJob("*/5 * * * 8 *", handler);

@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { ITokenPayload } from "../interfaces/IToken";
 import { IUser } from "../interfaces/IUser";
+import { userPresenter } from "../presenters/user.presenter";
 import { userService } from "../services/user.service";
 
 class UserController {
@@ -26,7 +28,10 @@ class UserController {
   public async getMe(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
-      const result = await userService.getMe(jwtPayload);
+      const user = await userService.getMe(jwtPayload);
+
+      const result = userPresenter.toPublicResDto(user);
+
       res.json(result);
     } catch (e) {
       next(e);
@@ -47,6 +52,18 @@ class UserController {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
       await userService.deleteMe(jwtPayload);
       res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      const avatar = req.files.avatar as UploadedFile;
+
+      const user = await userService.uploadAvatar(jwtPayload, avatar);
+      const result = userPresenter.toPublicResDto(user);
+      res.status(201).json(result);
     } catch (e) {
       next(e);
     }
