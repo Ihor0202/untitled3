@@ -15,6 +15,7 @@
     "@types/node": "^22.5.5",
     "@types/nodemailer": "^6.4.16",
     "@types/nodemailer-express-handlebars": "^4.0.5",
+    "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
     "eslint": "^8.57.0",
@@ -44,7 +45,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.3",
     "nodemailer": "^6.9.15",
-    "nodemailer-express-handlebars": "^6.1.2"
+    "nodemailer-express-handlebars": "^6.1.2",
+    "swagger-ui-express": "^5.0.1"
   },
   "lint-staged": {
     "{src,apps,libs,test}/**/*.ts": "eslint --fix"
