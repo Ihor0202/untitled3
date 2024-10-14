@@ -44,11 +44,19 @@ class UserService {
       user._id,
     );
     const updatedUser = await userRepository.getByIdPut(user._id, { avatar });
-    // if (user.avatar) {
-    // }
-    console.log(updatedUser);
-
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
     return updatedUser;
+  }
+  public async deleteAvatar(jwtPayload: ITokenPayload): Promise<IUser> {
+    const user = await userRepository.getById(jwtPayload.userId);
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+    return await userRepository.getByIdPut(user._id, {
+      avatar: null,
+    });
   }
 }
 
